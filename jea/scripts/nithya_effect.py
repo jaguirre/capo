@@ -84,7 +84,7 @@ b0 = 29.2
 tau0 = (b0*u.m/c.c).to(u.ns)
 
 ## Construct beam
-sidelobe_level = 3e-3
+sidelobe_level = 1e-4
 beam = np.exp(-np.power(theta,2)/(2.*np.power(sigma,2)))
 beam += sidelobe_level
 #beam_nu += sidelobe_level
@@ -118,7 +118,7 @@ C_a = hp.alm2cl(a_lm)
 C_fa = hp.alm2cl(f_lm*a_lm)
 
 figno = 5
-title = 'Gah'#'Sin^16(phi)'
+title = ''#'Sin^16(phi)'
 filename = ''
 
 plt.figure(figno)

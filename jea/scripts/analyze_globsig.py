@@ -30,7 +30,7 @@ calfile = 'psa6622_v003'
 bldir = '/Users/jaguirre/Documents/PAPER/GlobalSignal/BaselinePulls/'
 hdf5dir = '/Users/jaguirre/Documents/PAPER/GlobalSignal/'
 #%%
-
+# Set up the information describing the array and 
 ants = np.arange(0,128)
 nant = len(ants)
 nbl = nant*(nant+1)/2.
@@ -42,14 +42,7 @@ freqs = np.linspace(100.,200.,num=nfreqs)
 aa = aipy.cal.get_aa(calfile,np.array([.15]))
 info = capo.omni.aa_to_info(aa)
 reds = info.get_reds()
-#%%
-#xnom = info.antloc[:,1]*15.
-#ynom = info.antloc[:,0]*4.
-#plt.figure(1)
-#plt.clf()
-#plt.plot(xnom,ynom,'o')
-#plt.xlim([-15,240])
-#plt.ylim([-4,30])
+
 #%%
 ibl = 1
 f = h5py.File(hdf5dir+'zen.2456680.xx.uvcRREO.hdf5','w')
@@ -73,7 +66,7 @@ f.close()
 # This got fouled up
 #avgspecs=np.load(bldir+'avgspecs.npz')
 #%%
-# Find (10,64)
+# Find (10,64), which I happen to know is a XXX length E-W baseline
 myblgrp = -1
 for i,group in enumerate(reds):
     for bl in group:
