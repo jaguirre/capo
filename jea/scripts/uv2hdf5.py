@@ -57,7 +57,7 @@ for ni,i in enumerate(ants):
         anttuples.append((i,j))
 antstrings = tuplist2strlist(anttuples)
 
-#%% Antenna information
+#%% Antenna informationl
 #nfreqs = 203
 #freqs = np.linspace(100.,200.,num=nfreqs)
 #
