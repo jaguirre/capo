@@ -80,7 +80,7 @@ lmbda0 = 2.
 D = 14.
 fwhm = 1.22*lmbda0/D
 sigma = fwhm/2.35
-b0 = 29.2
+b0 = 14.6
 tau0 = (b0*u.m/c.c).to(u.ns)
 
 ## Construct beam
@@ -147,7 +147,7 @@ plt.legend()
 
 plt.subplot(235)
 plt.plot(ell,C_fa/C_fa.max())
-plt.xlim([0,30])
+plt.xlim([0,100])
 
 hp.orthview((beam_nu*fringe)[:,100].real,rot=[0,90],half_sky=True,sub=236)
 hp.graticule()
