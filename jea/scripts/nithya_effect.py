@@ -185,7 +185,7 @@ plt.xlabel(r'Multipole $\ell$')
 plt.ylabel(r'$C_\ell/C_0$')
 plt.legend(loc='upper right')
 
-hp.orthview((fringe)[:,100].real,rot=[0,90],half_sky=True,sub=236,title='')
+hp.orthview((beam_nu*fringe)[:,100].real,rot=[0,90],half_sky=True,sub=236,title='')
 hp.graticule()
 plt.savefig(runname+'_spectrum_delay.png')
 
