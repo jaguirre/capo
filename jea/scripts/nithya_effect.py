@@ -17,8 +17,10 @@ def VisualizeAlm(alm,figno=1,max_l=None):
     l,m = hp.Alm.getlm(lmax)
     mag = np.zeros([lmax+1,lmax+1])
     phs = np.zeros([lmax+1,lmax+1])
+    a_lm = np.zeros([lmax+1,lmax+1],dtype='complex128')
     mag[m,l] = np.abs(alm)
     phs[m,l] = np.angle(alm)
+    a_lm[m,l] = alm
     cl = hp.alm2cl(alm)
     # Decide the range of l to plot
     if max_l != None:
@@ -30,13 +32,17 @@ def VisualizeAlm(alm,figno=1,max_l=None):
     plt.clf()
     plt.subplot(211)
     plt.imshow(mag[0:max_l,0:max_l],interpolation='nearest',origin='lower')
+    plt.xlabel(r'$\ell$')
+    plt.ylabel(r'$m$')
     plt.colorbar()
     plt.subplot(212)
     plt.imshow(phs[0:max_l,0:max_l],interpolation='nearest',origin='lower')
+    plt.xlabel(r'$\ell$')
+    plt.ylabel(r'$m$')
     plt.colorbar()
     # plt.subplot(313)
     #plt.semilogy(cl[0:max_l])
-    return {'mag':mag,'phs':phs,'cl':cl}
+    return {'mag':mag,'phs':phs,'cl':cl,'a_lm':a_lm}
     
 #%%
 
@@ -82,9 +88,10 @@ fwhm = 1.22*lmbda0/D
 sigma = fwhm/2.35
 b0 = 14.6
 tau0 = (b0*u.m/c.c).to(u.ns)
+l_pk = 2.*np.pi*D/lmbda0
 
 ## Construct beam
-sidelobe_level = 1e-4
+sidelobe_level = 3e-4
 beam = np.exp(-np.power(theta,2)/(2.*np.power(sigma,2)))
 beam += sidelobe_level
 #beam_nu += sidelobe_level
@@ -117,6 +124,8 @@ C_a = hp.alm2cl(a_lm)
 
 C_fa = hp.alm2cl(f_lm*a_lm)
 
+
+
 figno = 5
 title = ''#'Sin^16(phi)'
 filename = ''
@@ -124,32 +133,47 @@ filename = ''
 plt.figure(figno)
 plt.clf()
 plt.subplot(231)
-plt.plot(nu,T_nu.real,'b')
-plt.plot(nu,T_nu.real-T_nu.mean(),'b--')
-plt.plot(nu,window*T_nu.real,'g')
-plt.plot(nu,T_nu.imag,'r')
+plt.plot(nu,T_nu.real,'b',label=r'$Re[\Xi(\nu)]$')
+plt.plot(nu,T_nu.real-T_nu.mean(),'b--',label=r'$Re[\Xi(\nu)-\bar{\Xi}(\nu)]$')
+plt.plot(nu,window*T_nu.real,'g',label=r'$Re[\Xi(\nu)] W(\nu)$')
+plt.plot(nu,T_nu.imag,'r',label=r'$Im[\Xi(\nu)]$')
+plt.xlabel('Frequency [MHz]')
+plt.ylabel('Amplitude (arb. units)')
+plt.legend(loc='upper right')
+plt.title('Global signal transfer function')
 
 plt.subplot(232)
-plt.plot(nu,T_nu.real/omega_nu)
-plt.title(title)
+plt.plot(nu,T_nu.real/omega_nu,label=r'$Re[\Xi(\nu)]/\Omega_\nu$')
+plt.legend(loc='upper right')
+plt.title('Normalized global signal transfer function')
+plt.xlabel('Frequency [MHz]')
 
 plt.subplot(233)
 plt.semilogy(tau,Ptau_T_nu)
-plt.semilogy(-tau0.value*np.array([1.,1.]),[1e-2,1e5],'r--')
-plt.semilogy(tau0.value*np.array([1.,1.]),[1e-2,1e5],'r--')
+
+plt.semilogy(-tau0.value*np.array([1.,1.]),[Ptau_T_nu.min(),Ptau_T_nu.max()],'r--')
+plt.semilogy(tau0.value*np.array([1.,1.]),[Ptau_T_nu.min(),Ptau_T_nu.max()],'r--')
+plt.title('Delay transform of transfer function')
+plt.xlim([-3*tau0.value,3*tau0.value])
+plt.ylim([Ptau_T_nu.max()*1e-6,Ptau_T_nu.max()*2.])
+plt.xlabel('Delay [ns]')
 
 plt.subplot(234)
-plt.plot(C_f/C_f.max(),label='C_l,fringe')
-plt.plot(C_a/C_a.max(),label='C_l,beam')
-plt.xlim([0,150])
-#plt.ylim([1e-8,1e1])
+plt.plot(C_f/C_f.max(),label=r'$C_{\ell,fringe}$')
+plt.plot(C_a/C_a.max(),label=r'$C_{\ell,beam}$')
+plt.xlim([0,l_pk*1.5])
+plt.xlabel(r'Multipole $\ell$')
+plt.ylabel(r'$C_\ell/C_0$')
 plt.legend()
 
 plt.subplot(235)
-plt.plot(ell,C_fa/C_fa.max())
+plt.plot(ell,C_fa/C_fa.max(),label=r'$\frac{1}{2 \ell+1} \sum_m |f_{lm} a_{lm}|^2$')
 plt.xlim([0,100])
+plt.xlabel(r'Multipole $\ell$')
+plt.ylabel(r'$C_\ell/C_0$')
+plt.legend(loc='upper right')
 
-hp.orthview((beam_nu*fringe)[:,100].real,rot=[0,90],half_sky=True,sub=236)
+hp.orthview((beam_nu*fringe)[:,100].real,rot=[0,90],half_sky=True,sub=236,title='')
 hp.graticule()
 
 
