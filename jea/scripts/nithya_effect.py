@@ -11,7 +11,7 @@ from astropy import units as u
 from astropy import constants as c
 import pylab as plt
 
-def VisualizeAlm(alm,figno=1,max_l=None):
+def VisualizeAlm(alm,figno=1,max_l=None,annot=''):
     """ Visualize a healpy a_lm vector """
     lmax = hp.Alm.getlmax(f_lm.size)
     l,m = hp.Alm.getlm(lmax)
@@ -28,18 +28,20 @@ def VisualizeAlm(alm,figno=1,max_l=None):
     else:
         max_l = lmax 
     print max_l
-    plt.figure(figno)
+    plt.figure(figno,figsize=(4,4))
     plt.clf()
     plt.subplot(211)
     plt.imshow(mag[0:max_l,0:max_l],interpolation='nearest',origin='lower')
     plt.xlabel(r'$\ell$')
     plt.ylabel(r'$m$')
     plt.colorbar()
+    plt.title(annot+'Magnitude')
     plt.subplot(212)
     plt.imshow(phs[0:max_l,0:max_l],interpolation='nearest',origin='lower')
     plt.xlabel(r'$\ell$')
     plt.ylabel(r'$m$')
     plt.colorbar()
+    plt.title(annot+'Phase')
     # plt.subplot(313)
     #plt.semilogy(cl[0:max_l])
     return {'mag':mag,'phs':phs,'cl':cl,'a_lm':a_lm}
@@ -81,12 +83,15 @@ nu = np.linspace(100,200,num=203)*u.MHz
 dnu = np.median(np.diff(nu))
 tau = calc_delay(len(nu),df=dnu)
 
+#---
+
+runname='PAPER-like'
 ## Instrument parameters
 lmbda0 = 2.
-D = 14.
+D = 2.
 fwhm = 1.22*lmbda0/D
 sigma = fwhm/2.35
-b0 = 14.6
+b0 = 15.
 tau0 = (b0*u.m/c.c).to(u.ns)
 l_pk = 2.*np.pi*D/lmbda0
 
@@ -117,6 +122,7 @@ window = np.hanning(len(T_nu))
 dtrans_T_nu = np.fft.fftshift(np.fft.fft(window*T_nu))
 Ptau_T_nu = np.abs(dtrans_T_nu)
 
+# Need to calculate this for all frequencies
 f_lm = hp.map2alm(fringe[:,100])
 C_f = hp.alm2cl(f_lm)
 a_lm = hp.map2alm(beam_nu[:,100])
@@ -126,11 +132,7 @@ C_fa = hp.alm2cl(f_lm*a_lm)
 
 
 
-figno = 5
-title = ''#'Sin^16(phi)'
-filename = ''
-
-plt.figure(figno)
+plt.figure(1,figsize=(12,7))
 plt.clf()
 plt.subplot(231)
 plt.plot(nu,T_nu.real,'b',label=r'$Re[\Xi(\nu)]$')
@@ -175,9 +177,21 @@ plt.legend(loc='upper right')
 
 hp.orthview((beam_nu*fringe)[:,100].real,rot=[0,90],half_sky=True,sub=236,title='')
 hp.graticule()
+plt.savefig(runname+'_spectrum_delay.png')
 
+#%%
 
-    
+valm = VisualizeAlm(f_lm*a_lm,figno=2,max_l = int(l_pk*1.2),annot=r'$a_{lm} f_{lm}$ ')
+plt.savefig(runname+'_a_lm_visualization.png')
+
+plt.figure(3)
+plt.plot(valm['a_lm'][0,:].real,'bo-',label=r'Re[$f_{\ell 0} a_{\ell 0}]')
+plt.plot(valm['a_lm'][0,:].imag,'g',label=r'Re[$f_{\ell 0} a_{\ell 0}]')
+plt.xlim([0,int(l_pk*1.2)])
+plt.xlabel(r'Multipole $\ell$')
+plt.ylabel(r'$f_{\ell 0} a_{\ell 0}(\nu=150 \, \rm{MHz} )$')
+plt.subplots_adjust(left=0.2)
+plt.savefig(runname+'_xi_of_ell.png')
     
     
     
