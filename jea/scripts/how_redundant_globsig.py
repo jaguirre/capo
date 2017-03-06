@@ -125,7 +125,8 @@ for num,bl in enumerate(reds_good):
     plt.xlim([100,200])
     plt.ylim([0,0.08])
     plt.legend()
-    
+
+plt.show()
 
     
 
