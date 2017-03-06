@@ -85,7 +85,7 @@ tau = calc_delay(len(nu),df=dnu)
 
 #---
 
-runname='PAPER-like'
+
 ## Instrument parameters
 lmbda0 = 2.
 D = 2.
@@ -96,11 +96,21 @@ tau0 = (b0*u.m/c.c).to(u.ns)
 l_pk = 2.*np.pi*D/lmbda0
 
 ## Construct beam
-sidelobe_level = 3e-4
-beam = np.exp(-np.power(theta,2)/(2.*np.power(sigma,2)))
-beam += sidelobe_level
-#beam_nu += sidelobe_level
-#beam = np.power(np.sin(theta),2)*np.power(np.sin(phi),16)
+if True:
+    runname='PAPER_like_'
+    sidelobe_level = 0 #3e-4
+    beam = np.exp(-np.power(theta,2)/(2.*np.power(sigma,2)))
+    beam += sidelobe_level
+if False:
+    beam = np.power(np.sin(theta),2)*np.power(np.sin(phi),16)
+if False:
+    runname='Towards_meridian'
+    beam = np.zeros_like(theta)
+    beam[(phi<np.radians(1.)) + (phi>np.radians(359.))] = 1
+    beam[(phi<np.radians(181.)) * (phi>np.radians(179.))] = 1
+    beam[theta<np.radians(2.)]=0
+    
+# Normalize and include frequency dependence    
 beam /= beam.max()
 beam_nu = np.outer(beam,np.ones_like(nu))
 
@@ -175,7 +185,7 @@ plt.xlabel(r'Multipole $\ell$')
 plt.ylabel(r'$C_\ell/C_0$')
 plt.legend(loc='upper right')
 
-hp.orthview((beam_nu*fringe)[:,100].real,rot=[0,90],half_sky=True,sub=236,title='')
+hp.orthview((fringe)[:,100].real,rot=[0,90],half_sky=True,sub=236,title='')
 hp.graticule()
 plt.savefig(runname+'_spectrum_delay.png')
 
