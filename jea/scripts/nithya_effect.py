@@ -45,8 +45,6 @@ def VisualizeAlm(alm,figno=1,max_l=None,annot=''):
     # plt.subplot(313)
     #plt.semilogy(cl[0:max_l])
     return {'mag':mag,'phs':phs,'cl':cl,'a_lm':a_lm}
-    
-#%%
 
 # re-inventing the wheel
 def calc_delay(n,df):
@@ -132,7 +130,6 @@ window = np.hanning(len(T_nu))
 dtrans_T_nu = np.fft.fftshift(np.fft.fft(window*T_nu))
 Ptau_T_nu = np.abs(dtrans_T_nu)
 
-# Need to calculate this for all frequencies
 f_lm = hp.map2alm(fringe[:,100])
 C_f = hp.alm2cl(f_lm)
 a_lm = hp.map2alm(beam_nu[:,100])
@@ -140,8 +137,40 @@ C_a = hp.alm2cl(a_lm)
 
 C_fa = hp.alm2cl(f_lm*a_lm)
 
+#%%
 
+# Need to calculate this for all frequencies
+xi_lm_nu = np.zeros([f_lm.shape[0],nu.shape[0]],dtype='complex128')
 
+for i,inu in enumerate(nu):
+    print i
+    flm = hp.map2alm(fringe[:,i])
+    alm = hp.map2alm(beam_nu[:,i])
+    xi_lm_nu[:,i] = np.power(-1,m)*alm*np.conj(flm) # I think this implements the correct sign convention
+
+#%%  
+# Strange that healpy doesn't implement this, at least for a_lm^2.  Maybe because
+# that's easier, and who wants to sum over m without squaring?
+def sum_m(alm,lmax):
+    """ Given a healpy alm vector, sum over m's correctly  """
+    l,m = hp.Alm.getlm(lmax)
+    assert (len(a_lm) == len(l))
+    al = np.zeros(lmax+1,dtype='complex128')
+    for i,ell in enumerate(np.arange(lmax+1)):
+        whl = (l==ell)
+        whlm = (l==ell)*(m>0)
+        al[i] = alm[whl].sum() + (np.conj(alm[whlm])*np.power(-1,m[whlm])).sum()
+    return al
+
+#%%
+xi_l_nu = np.zeros([lmax+1,nu.shape[0]],dtype='complex128')
+for i,inu in enumerate(nu):
+    print i
+    xi_l_nu[:,i] = sum_m(xi_lm_nu[:,i],lmax)
+     
+
+#%%
+    
 plt.figure(1,figsize=(12,7))
 plt.clf()
 plt.subplot(231)
