@@ -88,7 +88,7 @@ for i in range(nant):
         ibl += 1
 etime(t0)
 #%%        
-# Edit out bad antennas
+_g# Edit out bad antennas
 reds_good = []
 for bl in reds[myblgrp]:
     i = bl[0]
