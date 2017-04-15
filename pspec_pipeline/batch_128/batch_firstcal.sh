@@ -68,7 +68,7 @@ do
 
 echo Firstcal-ing $FILE
 echo ${PATH2CAPO}/pspec_pipeline/getExAnts.py $FILE -f ${FCAL_1_PATH}/badants_1.txt 
-EX_ANTS=`${PATH2CAPO}/pspec_pipeline/getExAnts.py $FILE -f ${FCAL_1_PATH}/badants_1.txt` #XXX does this need to be inside the file loop?
+EX_ANTS=`${PATH2CAPO}/pspec_pipeline/getExAnts.py $FILE -f ${FCAL_1_PATH}/badants_1.txt`
 echo ${PATH2CAPO}/omni/firstcal.py -C ${CAL} -p ${POL} $FILE --ubls=${UBLS} --ex_ants=${EX_ANTS}
 ${PATH2CAPO}/omni/firstcal.py -C ${CAL} -p ${POL} $FILE --ubls=${UBLS} --outpath=${FCAL_2_PATH} --ex_ants=${EX_ANTS}
 
@@ -86,3 +86,6 @@ chmod 777 $FCAL_2_PATH/*
 done #done firstcal and analysis for all JDs
 
 echo Done-zo!
+
+
+
